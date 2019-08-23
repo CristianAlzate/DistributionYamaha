@@ -1,21 +1,233 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
+<div class="container" > 
+  <div class="jumbotron text-center">
+    <h1>Distribución de entregas</h1>
+  </div>
+  <table class="table table-striped" *ngIf="orders.length > 0" >
+    <thead>
+      <tr>
+        <th style="width: 5%;padding-left: 35px;">Detalle</th>
+        <th style="width: 12%">Nro Orden</th>
+        <th style="width: 26%;padding-left: 25px;">Cliente</th>
+        <th style="width: 24%">Direccion</th>
+        <th style="width: 9%">Color</th>
+        <th style="width: 19%">
+          <button type="button" class="btn btn-warning" (click)="addNeworder()" data-toggle="modal" data-target="#myModal" style="width:150px;float: right;margin-right: 12px">Nueva Orden</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of orders">
+        <td colspan="6">
+          <table class="table table-striped" style="width: 100%">
+            <tr>
+              <td style="width: 5%">
+                <button type="button" class="btn btn-info" style="width:80px" (click)="viewDetail(order)">Ver</button>
+              </td>
+              <td style="width: 12%">
+                {{order.OrderId}}
+              </td>
+              <td style="width: 26%">
+                {{order.Customer.CustomerName}}
+              </td>
+              <td style="width: 26%">
+                {{order.Customer.Address}}
+              </td>
+              <td style="width: 8%">
+                <div style="width:50px;height: 20px;" [ngStyle]="{'background-color': order.Customer.Color}"></div>
+              </td>
+              <td style="width: 20%">
+                <button type="button" class="btn btn-success" style="width:150px;float: right;" (click)="addOrderToDistribute(order)" *ngIf="!order.Sent">Envio</button>
+              </td>
+            </tr>
+            <tr *ngIf="order.ViewDetail">
+              <td colspan="6">
+                  <table class="table table-striped" style="width: 100%">
+                    <thead>
+                      <th style="width: 50%">
+                        Referencia
+                      </th>
+                      <th style="width: 25%">
+                        Cantidad
+                      </th>
+                      <th style="width: 25%">
+                        Factor Ocupación
+                      </th>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let detail of order.Details">
+                        <td>{{detail.Bike.BikeReference}}</td>
+                        <td>{{detail.Quantity}}</td>
+                        <td>{{detail.Bike.Width}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
+<div class="container">
+  <div class="row" style="margin-bottom: 20px">
+    <div class="col-sm-4">
+        Agrega Camiones:
+        <select [(ngModel)]="_selectedTruck" style="width: 100%;height: 30px;">
+          <option *ngFor="let t of trucks" [ngValue]="t">{{t.TruckReference}}</option>
+        </select>
+    </div>
+    <div class="col-sm-2">
+
+      </div>
+    <div class="col-sm-2">
+        <button type="button" class="btn btn-success" style="margin-top: 15px;text-align: end;" (click)="addTruck()">Agregar</button>
+    </div>
+    <div class="col-sm-2">
+        <button type="button" class="btn btn-success" style="margin-top: 15px;text-align: end;" (click)="cleanDistribution()">Limpiar</button>
+    </div>
+    <div class="col-sm-2">
+        <button type="button" class="btn btn-success" style="margin-top: 15px;text-align: end;" (click)="distribute()">Distribuir</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-6">
+      <table class="table" *ngIf="shipment.Orders.length > 0">
+        <thead>
+          <th>
+            Nro Orden 
+          </th>
+          <th>
+            Cliente
+          </th>
+          <th>
+            Color
+          </th>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of shipment.Orders">
+            <td>
+              {{order.OrderId}}
+            </td>
+            <td>
+              {{order.Customer.CustomerName}}
+            </td>
+            <td>
+              <div style="width:50px;height: 20px;" [ngStyle]="{'background-color': order.Customer.Color}"></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-6">
+      <div *ngIf="shipment.Trucks.length > 0">
+        Selecciona Vehiculo:
+      </div>
+      <div *ngIf="shipment.Trucks.length > 0">
+          <select [(ngModel)]="_selectedTruckDistribution" style="width: 100%;height: 30px;">
+              <option *ngFor="let td of shipment.Trucks" [ngValue]="td">{{td.TruckDistributionId}} - {{td.Truck.TruckReference}}</option>
+            </select>
+      </div>
+    </div>
+    <div class="alert alert-info alert-dismissible col-sm-12" *ngIf="_showAlertDistribute">
+      <strong>{{_messsageDistribute}}</strong>
+    </div>
+  </div>
+  <div class="container box-main" *ngIf="_selectedTruckDistribution">
+    <div class="col-sm-12" style="text-align: center;margin-top: 10px">
+        Vehiculo: {{_selectedTruckDistribution.Truck.TruckReference}}<br>
+        Largo: {{_selectedTruckDistribution.Truck.Length}} cms
+    </div>
+    <!--Camiones-->
+    <section class="row">
+      <section class="col-sm-6 row box-main__ct" *ngFor="let tf of _selectedTruckDistribution.TruckFloor">
+          <div style="width: 100%;text-align: center;margin-bottom:20px">Piso {{tf.Floor}}</div>
+          <div class="row box-main__ct-bk" [style.height.px]="_selectedTruckDistribution.Truck.Length"  style="width: 250px;margin: 0 auto;">
+              <div style="width: 200px">
+                  <div class="box-main__left" [style.height.px]="b.Width" [style.background-color]="b.Color"   style="width: 191px" *ngFor="let b of tf.BikesLeft">
+                      <p style="margin-top: 8px">{{b.Position}}-{{b.BikeReference}}</p>
+                  </div>
+              </div>
+              
+              <div style="width: 50px">
+                  <div class="box-main__right vertical-text" [style.width.px]="br.Width" [style.background-color]="br.Color" *ngFor="let br of tf.BikesRight">
+                      <p style="text-orientation:upright">{{br.Position}} {{br.BikeReference}}</p>
+                  </div>
+              </div>
+          </div>
+      </section>
+    </section>
+
+  </div>
+</div>
+
+
+
+
+
+
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Nueva Orden</h4>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-sm-5">
+              Selecciona el cliente:
+            </div>
+            <div class="col-sm-7">
+              <select [(ngModel)]="newOrder.Customer">
+                <option *ngFor="let c of customers" [ngValue]="c">{{c.CustomerName}}</option>
+              </select>
+            </div>
+            <div class="col-sm-4">
+              Agrega Vehiculos:
+              <select [(ngModel)]="_selectedBike" style="width: 100%;height: 30px;">
+                  <option *ngFor="let b of bikes" [ngValue]="b">{{b.BikeReference}}</option>
+                </select>
+            </div>
+            <div class="col-sm-4">
+              Cantidad: <input type="number" style="width: 100%" [(ngModel)]="_selectedQuantity">
+            </div>
+            <div class="col-sm-4">
+              <button type="button" class="btn btn-success" style="margin-top: 15px;text-align: end;" (click)="addBikes()">Agregar</button>
+            </div>
+          </div>
+        </div>
+        <div class="container" *ngIf="newOrder.Details" class="col-sm-12" >
+          <table class="table table-striped">
+            <tbody>
+              <tr *ngFor="let detail of newOrder.Details">
+                <td>
+                  {{detail.Bike.BikeReference}}
+                </td>
+                <td>
+                  {{detail.Quantity}}
+                  </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+        <div class="alert alert-info alert-dismissible" *ngIf="_showAlert">
+          <strong>¡Requerido!</strong> Debe elegir un cliente y agregar motos a la orden.
+        </div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-info" (click)="saveNewOrder()">Guardar</button>
+          <button type="button" id="closeModal" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+
 
 <!--<router-outlet></router-outlet>-->

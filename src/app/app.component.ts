@@ -53,11 +53,12 @@ export class AppComponent implements OnInit {
     let newDistributionTruck = new TruckDistribution();
     newDistributionTruck.Truck = this._selectedTruck;
     let newTruckDistSecondF = new TruckDistributionFloor();
-    newTruckDistSecondF.Floor = 2;
+    newTruckDistSecondF.Floor = 1;
     newTruckDistSecondF.LeftSideSpace = this._selectedTruck.Length;
     newTruckDistSecondF.RightSidePositionSlots = this._selectedTruck.Length;
     let newTruckDistFirstF = new TruckDistributionFloor();
-    newTruckDistFirstF.Floor = 1;
+    newTruckDistFirstF.Floor = 2;
+    newTruckDistFirstF.RightSidePositionSlots = this._selectedTruck.Length;
     newTruckDistFirstF.LeftSideSpace = this._selectedTruck.Length;
     newDistributionTruck.TruckFloor.push(newTruckDistSecondF);
     newDistributionTruck.TruckFloor.push(newTruckDistFirstF);
